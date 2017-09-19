@@ -8,6 +8,7 @@ angular.module('listings').controller('ListingsController', ['$scope', '$locatio
       Listings.getAll().then(function(response) {
         $scope.loading = false; //remove loader
         $scope.listings = response.data;
+        // console.log(response.data);
       }, function(error) {
         $scope.loading = false;
         $scope.error = 'Unable to retrieve listings!\n' + error;
@@ -79,6 +80,23 @@ angular.module('listings').controller('ListingsController', ['$scope', '$locatio
         successfully finished, navigate back to the 'listing.list' state using $state.go(). If an error 
         occurs, pass it to $scope.error. 
        */
+       if(!isValid){
+        $scope.$broadcast('show-errors-check-validity', 'articleForm');
+        return false;
+       }
+       var listing={
+        code: $scope.code,
+        name: $scope.name,
+        address: $scope.address
+       };
+       // console.log($scope.address);
+       Listings.update($stateParams.listingId, $scope.listing)
+        .then(function(response){
+          $state.go('listings.list', {successMessage: 'Listing has been successfully updated!'});
+        }, function(error){
+          $scope.error='Unable to update the listing!\n' + error;
+        });
+
     };
 
     $scope.remove = function() {
@@ -86,6 +104,12 @@ angular.module('listings').controller('ListingsController', ['$scope', '$locatio
         Implement the remove function. If the removal is successful, navigate back to 'listing.list'. Otherwise, 
         display the error. 
        */
+       Listings.delete($stateParams.listingId)
+        .then(function(response){
+          $state.go('listings.list', {successMessage: 'Listing has been successfully removed!'});
+        }, function(error){
+          $scope.error='Unable to remove the listing!\n' + error;
+        });
     };
 
     /* Bind the success message to the scope if it exists as part of the current state */
